@@ -6,9 +6,11 @@ import json
 import time
 
 # async, await, and the module asyncio are native to python after version 3.5
-# async keywork makes the function asynchronous 
-# async functions do not return a result immediately, instead they return generators which need to be iterated over 
+# async keywork makes the function asynchronous
+# async functions do not return a result immediately, instead they return generators which need to be iterated over
 # 'await' iterates over the generator function and 'awaits' for an actual response
+
+
 async def fetch(url, session):
     # sending a dummy payload to my server
     data = {
@@ -17,14 +19,15 @@ async def fetch(url, session):
 
     # asynchronous post request that will give my program the 'concurrent' functionality
     # keyword 'with' makes sure to close the connection after every post request
-    # important takeaway: in python, the data dictionary must be passed into jason.dumps() in order to successfully make the post request 
+    # important takeaway: in python, the data dictionary must be passed into jason.dumps() in order to successfully make the post request
     async with session.post(url, data=json.dumps(data)) as response:
         # return the status of the async post request, 200 if successful
         return response.status
 
+
 async def run(r):
     # url to my local server with my post route
-    url = "http://0.0.0.0:5000/api/post"
+    url = "http://127.0.0.1:5000/api/post"
     # headers with dummy api key
     headers = {
         "Content-type": "application/json",
@@ -48,15 +51,20 @@ async def run(r):
         # you now have all response bodies in this variable
         # .gather() waits for all tasks to return a response
         responses = await asyncio.gather(*tasks)
-        
+
+        num_responses = len(responses)
+
+        # commenting out print responses to prevent program from slowing down during large amount of concurrent requests
+        # print(responses)
+
         # the time that our program finished with the concurrent post requests
         end = time.time()
         # number of calls made
-        print("CALLS: ", len(responses))
+        print("CALLS: ", num_responses)
         # number of responses that were not of a status code 200
-        print("ERRORS: ", len(responses) - responses.count(200))
-        # total time elapsed 
-        print("TIME: {0:.4f}".format(round(end - start,4)), "seconds")
+        print("ERRORS: ", num_responses - responses.count(200))
+        # total time elapsed
+        print("TIME: {0:.4f}".format(round(end - start, 4)), "seconds")
 
 # create an event loop to be able to use this asynchronous functionality
 loop = asyncio.get_event_loop()
